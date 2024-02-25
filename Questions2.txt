@@ -1,0 +1,19 @@
+1. Four pieces of data are containted in the Linked_List_Node struct. 
+*prev and *next are pointers to the locations in memory of the previous and next nodes in the list. 
+key is an integer that functions as a unique identifier of a given node. 
+*data is a pointer to the data being held by the node.
+
+2. This line creates an alias for "struct Linked_List" as "Linked_List".
+
+3. kmalloc(n) finds an unused space in memory of size n and gets the memory address for that space. 
+It is being used in linked_list to allocate memory for Linked_List_Nodes and for Linked_Lists. 
+In Java, memory is managed automatically, so it is not necessary to use a function to find a location at which an object can be created.
+Therefore, declaring an instance of a class with the "new" keyword is equivalent to how kmalloc() is used.
+
+4. the menu() loop runs until it receives input from the user. 
+Once it receives input, it calls menu_execute(args, 1) where args represets the user input and 1 represents the fact that it is an argument.
+That function calls command_dispatch() to find the appropriate function associated with the user input and then run the command associated with the input.
+
+
+5. splhigh() sets the thread's importance to the highest possible value, which stops it from being interrupted.
+This is done so that the two threads don't interfere with each other. 

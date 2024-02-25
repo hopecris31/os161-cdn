@@ -1,0 +1,5 @@
+For the third interleaving, I put a thread yield before and after the line that increments the count in linked_list_insert.
+This should cause the program to lose count of the number of items in the list.
+In observation, this did in fact happen. At one point during the running, it prints that a list that should have size 6 has size 5, meaning it did not properly update the size.
+Later, though, it fails to decrement the size, meaning these issues cancel out, resulting in the program ending up with the correct count by the end of its run.
+However, it still does not perform as expected.

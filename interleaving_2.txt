@@ -1,0 +1,5 @@
+For the second interleaving, I put a thread yield at the beginning of the else statement in linked_list_remove_head().
+This causes it to yield after checking whether or not the list is empty if it determines the list is not empty.
+This should cause it to sometimes yield and then come back to a list that no longer has any elements in it.
+Therefore, it should sometimes try to delete when no items are there, causing a null pointer exception.
+In observation, this did not happen. It instead caused the threads to remove the head in the wrong order, resulting in the list ending up with more elements than it should have at one point.

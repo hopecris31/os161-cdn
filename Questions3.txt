@@ -1,0 +1,57 @@
+1. The two synchronization mechanisms are kprintf_lock, a mutex lock used for non-polled kprints, and kprintf_spinlock, a spinlock used for polled kprints.
+
+
+
+2. Two other subsystems that use synchronization mechanisms are proc (in proc/proc.c) and kmalloc (in vm/kmalloc.c).
+
+proc manages processes.
+It uses a spinlock whenever it needs to access or modify information about a process struct.
+It does this to ensure that those sections of its code are atomic so that no other process can change information about the process struct, such as its address space or its thread count.
+
+kmalloc is the kernel's malloc function. It allocates space in memory and returns the address to that memory location.
+While allocating pages to hold pagerefs, it releases its spinlock around where it allocates pages.
+This is to make sure the system does not end up deadlocked in the case that calling alloc_kpages() needs to run that function.
+
+
+
+3. char *sem_name is the name of the semaphore, used for debugging.
+struct wchan *sem_wchan is a wait channel to hold threads.
+struct spinlock sem_lock is the spinlock that the semaphore is built off of.
+volatile unsigned sem_count is the count of the number of threads that can be in the semaphore. It uses the volatile keyword because it can be changed unexpectedly (i.e. outside of the thread this is running on)
+
+struct semaphore * sem_create(const char *name, unsigned initial_count) --- tells us that this function will return a semaphore struct. It also tells us that we will input a name and an initial count to the semaphore.
+
+struct semaphore *sem; --- this declares the semaphore. It does not yet allocate data for it, it only declares its existence.
+
+sem = kmalloc(sizeof(*sem)); --- this now allocates space in memory for the semaphore. It allocates the appropriate size for a semaphore.
+
+if (sem == NULL) {
+  return NULL;
+} --- this checks whether or not the semaphore is NULL. The semaphore would be NULL if there was no memory available to allocate to the semaphore. Therefore, sem_create fails and we return NULL.
+
+sem->sem_name = kstrdup(name); --- this sets the field sem_name of the struct sem to a copy of the string name.
+
+if (sem->sem_name == NULL) {
+  kfree(sem);
+  return NULL;
+} --- similar to above, this checks whether or not we were able to allocate space for the copy of the name. If we were not, we want to return NULL. However, before we do that, we need to free the memory we allocated to the semaphore. The line "kfree(sem)" does this.
+
+sem->sem_wchan = wchan_create(sem->sem_name);
+  if (sem->sem_wchan == NULL) {
+    kfree(sem->sem_name);
+    kfree(sem);
+    return NULL;
+} --- similar to above, we create a wait channel and then check whether or not we were able to successfully allocate space to it. If not, we free the allocated memory from sem_name and then from sem, then return NULL.
+
+spinlock_init(&sem->sem_lock); --- this initializes sem_lock, the spinlock that the semaphore is built on.
+
+sem->sem_count = initial_count; --- this sets the sem_count field to the initial_count variable that was passed to sem_create().
+
+return sem; --- this returns the struct semaphore. This line will, of course, only be reached when none of the NULL checks are triggered, meaning we know we have a semaphore with space for all the correct data.
+
+The wait channel being locked before the spinlock is released is not a problem, because wchan_sleep() unlocks the deadlock for as long as the wait channel is sleeping.
+
+4. Wait channels are implemented in thread/thread.c
+The spinlock is passed in so that the function can make sure that the current thread is holding the spinlock. 
+This ensures that only threads that currently have the spinlock can access this function, so that we know nobody else is currently accessing one of the wait channel's functions.
+wchan_sleep is responsible for putting threads to sleep.

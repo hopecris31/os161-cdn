@@ -1,0 +1,22 @@
+1. Header files contain the signature of functions that will appear elsewhere in the program.
+
+2. os161-proj1/src/kern/arch/sys161/main/start.S contains the MIPS assembly code for booting the kernel.
+It's written in assembly instead of C because C code is executed in the kernel.
+If the kernel has not yet been booted, OS/161 doesn't have a way to execute C code.
+Therefore, the lower level MIPS code needs to be used to boot up the kernel.
+
+3. Arrays, Bitmap, Byte swap, Kgets to read off the console, Kprint to print to the console, functions for adding or subtracting time values, and uio to manage memory.
+
+4. Three unimplemented syscalls in os161 are proc, membar, and cdefs. Documentation for syscalls can be found in /src/kern/include/. In order to add a new syscall, you would need to edit the syscall function in syscall.c. You also need to add a header file for the new syscall to the /src/kern/include/ directory.
+
+5.
+
+a. src/kern/syscall contians the code to run systen calls, including loadelf.c and runprogram.c
+
+b. src/kern/include contains header files for the kernel, which themselves contain the signatures of the functions used elsewhere in the program.
+
+c. src/kern/proc contains the file proc.c, which contains the struct proc, which represents a process structure.
+
+d. src/kern/vm contains files to work with virtual memory, such as addrspace.c, which is a structure that models address spaces, and kmalloc.c, which allocates memory.
+
+e. src/kern/test contains testing files for various parts of OS/161

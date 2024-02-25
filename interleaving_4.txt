@@ -1,0 +1,9 @@
+For the fourth interleaving, I put a thread_yield after the while (runner != null) statement in linked_list_printlist().
+This should cause the thread to yield when the runner is not null, but then sometimes come back to the thread to find the runner now being null, i.e. the runner has been removed.
+This should cause a null pointer exception, since the following line tries to access data from the runner, which would no longer exist.
+In observation, this is exactly what happens. 
+The output is:
+  1: panic: Fatal exception 4 (Address error on load) in kernel mode
+  panic: EPC 0x80003828, exception vaddr 0xdeadbeef
+The "1: " comes from the part of the print function that runs before the thread_yield.
+Once it tries to access runner -> key on the next line, it faces the null pointer exception (address error on load).
